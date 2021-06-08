@@ -200,6 +200,15 @@ def to_title_case(s):
     return " ".join([word[0].upper() + word[1:] for word in s.split(" ")])
 
 
+def left_pad(s, length):
+    return s + " " * (length - len(s))
+
+
+def mp_round(value, digits):
+    ten_mult = 10 ** digits
+    return str(int(value * ten_mult) / ten_mult)
+
+
 def tool_element_info():
     while True:
         inp = input("Symbol oder Name eingeben: ")
@@ -286,9 +295,37 @@ def tool_bohrsches_atommodell():
             print("Kein Element mit Symbol", inp)
 
 
+def tool_delta_en():
+    while True:
+        inp = to_title_case(input("Mehrere Elementsymbole eingeben (mit Abstand getrennt): "))
+        if not inp.strip():
+            print("Tool beendet.")
+            return
+        else:
+            symbols = list(inp.split(" "))
+            if len(symbols) < 2:
+                print("Bitte mehrere Elemente angeben")
+            elif len(symbols) == 2:
+                el1 = ELEMENTS_BY_SYMBOL[symbols[0]]
+                el2 = ELEMENTS_BY_SYMBOL[symbols[1]]
+                en1 = el1.data[ELEKTRONEGATIVITAET]
+                en2 = el2.data[ELEKTRONEGATIVITAET]
+                print("ΔEN =", abs(en1 - en2), "(EN von", el1.name, "=", en1, "und EN von", el2.name, "=", en2)
+            else:
+                print("    ", *[left_pad(s, 4) for s in symbols])
+                for s1 in symbols:
+                    en1 = ELEMENTS_BY_SYMBOL[s1].data[ELEKTRONEGATIVITAET]
+                    values = []
+                    for s2 in symbols:
+                        en2 = ELEMENTS_BY_SYMBOL[s2].data[ELEKTRONEGATIVITAET]
+                        values.append(mp_round(abs(en1 - en2), 2))
+                    print(left_pad(s1, 4), *[left_pad(v, 4) for v in values])
+
+
 tools = {
     1: ["Element-Info", tool_element_info],
     2: ["Bohrsches Atommodell", tool_bohrsches_atommodell],
+    3: ["Delta-EN", tool_delta_en]
 }
 while True:
     for key, tool_info in tools.items():

@@ -26,3 +26,24 @@ Elektronenkonfiguration: [Xe] 4f14 5d10 6s1
 Symbol oder Name eingeben: 58fe
 ⁵⁸Fe könnte ein Eisen-Isotop mit 26 Protonen und 32 Neutronen sein.
 ```
+
+## 2
+```
+Elementsymbol eingeben: cl
+Elektronenvereilung von Chlor
+Schale K 2 von 2 Elektronen
+Schale L 8 von 8 Elektronen
+Schale M 7 von 18 Elektronen
+```
+
+## 3 Delta-EN
+```
+Mehrere Elementsymbole eingeben (mit Abstand getrennt): H Li
+ΔEN = 1.12 (EN von Wasserstoff = 2.1 und EN von Lithium = 0.98
+Mehrere Elementsymbole eingeben (mit Abstand getrennt): H Li Na Ca
+     H    Li   Na   Ca  
+H    0.0  1.12 1.17 1.1 
+Li   1.12 0.0  0.05 0.02
+Na   1.17 0.05 0.0  0.07
+Ca   1.1  0.02 0.07 0   
+```
