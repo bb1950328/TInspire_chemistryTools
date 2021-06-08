@@ -222,8 +222,65 @@ def tool_element_info():
             print("{}: {}".format(h, el.data[h]))
 
 
+class ElektronenVerteilung:
+    def __init__(self):
+        self.fill = [0] * 7
+        self.capacity = [2 * n * n for n in range(1, 8)]
+        self.chars = [chr(ord('K') + i) for i in range(7)]
+
+    def fill_for(self, e):
+        if e > 1:
+            self.fill_for(e - 1)
+        if e <= 2:
+            self.fill[0] += 1
+        elif e <= 10:
+            self.fill[1] += 1
+        elif e <= 18:
+            self.fill[2] += 1
+        elif 19 <= e <= 20 or 31 <= e <= 36:
+            self.fill[3] += 1
+        elif 37 <= e <= 37 or 49 <= e <= 54:
+            self.fill[4] += 1
+        elif 55 <= e <= 56 or 81 <= e <= 86:
+            self.fill[4] += 1
+        elif 87 <= e <= 88:
+            self.fill[4] += 1
+        else:
+            self.fill_innerst()
+
+    def fill_innerst(self):
+        for i in range(7):
+            if self.fill[i] < self.capacity[i]:
+                self.fill[i] += 1
+                return
+
+    def print(self):
+        for i in range(7):
+            if self.fill[i] == 0:
+                break
+            print("Schale", self.chars[i], self.fill[i], "von", self.capacity[i], "Elektronen")
+
+
+def tool_bohrsches_atommodell():
+    while True:
+        inp = input("Elementsymbol eingeben: ").title()
+        if not inp.strip():
+            print("Tool beendet.")
+            return
+        elif inp in ELEMENTS_BY_SYMBOL:
+            el = ELEMENTS_BY_SYMBOL[inp]
+            print("Elektronenvereilung von", el.name)
+            verteilung = ElektronenVerteilung()
+            verteilung.fill_for(el.protonen)
+            verteilung.print()
+
+        else:
+            print("Kein Element mit Symbol", inp)
+
+
 tools = {
-    1: ["Element-Info", tool_element_info]
+    1: ["Element-Info", tool_element_info],
+    2: ["Bohrsches Atommodell", tool_bohrsches_atommodell],
 }
 while True:
     for key, tool_info in tools.items():
