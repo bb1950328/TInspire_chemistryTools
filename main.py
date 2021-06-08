@@ -1,6 +1,18 @@
-PERIODIC_TABLE_HEADS = ["Protonenzahl", "Name", "Symbol", "Relative Atommasse", "Periode", "Gruppe", "Zustand", "Typ", "Atomradius", "Elektronegativität", "Dichte", "Schmelzpunkt (K)", "Siedepunkt (K)", "Isotope", "Elektronenkonfiguration"]
+RELATIVE_ATOMMASSE = "Relative Atommasse"
+PERIODE = "Periode"
+GRUPPE = "Gruppe"
+ZUSTAND = "Zustand"
+TYP = "Typ"
+ATOMRADIUS = "Atomradius"
+ELEKTRONEGATIVITAET = "Elektronegativität"
+DICHTE = "Dichte"
+SCHMELZPUNKT_K = "Schmelzpunkt (K)"
+SIEDEPUNKT_K = "Siedepunkt (K)"
+ISOTOPE = "Isotope"
+ELEKTRONENKONFIGURATION = "Elektronenkonfiguration"
+PERIODIC_TABLE_HEADS = ["Protonenzahl", "Name", "Symbol", RELATIVE_ATOMMASSE, PERIODE, GRUPPE, ZUSTAND, TYP, ATOMRADIUS, ELEKTRONEGATIVITAET, DICHTE, SCHMELZPUNKT_K, SIEDEPUNKT_K, ISOTOPE, ELEKTRONENKONFIGURATION]
 PERIODIC_TABLE_DATA = [
-    [1, 'Wasserstoff', 'H', 1.00794, 1, 1, 'gas', 'Nichtmetall', 0.79, 2.2, 8.988e-05, 14.175, 20.28, 3, '1s1'],
+    [1, 'Wasserstoff', 'H', 1.00794, 1, 1, 'gas', 'Nichtmetall', 0.79, 2.1, 8.988e-05, 14.175, 20.28, 3, '1s1'],
     [2, 'Helium', 'He', 4.002602, 1, 18, 'gas', 'Edelgas', 0.49, None, 0.0001785, None, 4.22, 5, '1s2'],
     [3, 'Lithium', 'Li', 6.941, 2, 1, 'solid', 'Alkalimetall', 2.1, 0.98, 0.534, 453.85, 1615, 5, '[He] 2s1'],
     [4, 'Beryllium', 'Be', 9.012182, 2, 2, 'solid', 'Erdalkalimetall', 1.4, 1.57, 1.85, 1560.15, 2742, 6, '[He] 2s2'],
@@ -120,6 +132,9 @@ PERIODIC_TABLE_DATA = [
     [118, 'Ununoctium', 'Uuo', 294, 7, 18, 'künstlich', 'Edelgas', None, None, None, None, None, None, None],
 ]
 
+SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+SUBSCRIPT = "₀₁₂₃₄₅₆₇₈₉"
+
 
 class Element:
     protonen = 0
@@ -171,23 +186,53 @@ def get_best(score_func, data):
     return data[scores.index(max(scores))]
 
 
+def format_superscript(num):
+    return "".join([SUPERSCRIPT[int(digit)] for digit in str(num)])
+
+
+def format_subscript(num):
+    return "".join([SUBSCRIPT[int(digit)] for digit in str(num)])
+
+
 def tool_element_info():
     while True:
         inp = input("Symbol oder Name eingeben: ")
+        if not inp.strip():
+            print("Tool beendet.")
+            return
+        if inp[0].isdigit():
+            num = 0
+            rest = ""
+            for i, c in enumerate(inp):
+                if c.isdigit():
+                    num = 10 * num + int(c)
+                else:
+                    rest = inp[i:]
+                    break
+            if rest.title() in ELEMENTS_BY_SYMBOL:
+                el = ELEMENTS_BY_SYMBOL[rest.title()]
+                if num == el.protonen:
+                    print(format_subscript(el.protonen) + el.symbol, "hat", num, "Protonen und durchschnittlich", el.data[RELATIVE_ATOMMASSE] - el.protonen, "Neutronen")
+                else:
+                    print(format_superscript(num) + el.symbol, "könnte ein", el.name + "-Isotop mit", el.protonen, "Protonen und", num - el.protonen, "Neutronen sein.")
+                continue
+
         el = get_best(lambda elem: max(-levenshtein_distance(elem.name, inp), -levenshtein_distance(elem.symbol, inp)), ELEMENTS)
         for h in PERIODIC_TABLE_HEADS:
-            print(h.ljust(LONGEST_ELEMENT_DATA_HEADER), el.data[h])
+            print("{}: {}".format(h, el.data[h]))
 
 
-if __name__ == '__main__':
-    tools = {
-        1: ["Element-Info", tool_element_info]
-    }
-    while True:
-        for key, tool_info in tools.items():
-            print(str(key).ljust(4), tool_info[0])
-        choice = input("Toolnummer: ")
-        if choice.isdigit() and int(choice) in tools:
-            tools[int(choice)][1]()
-        else:
-            print("Ungültige Toolnummer.")
+tools = {
+    1: ["Element-Info", tool_element_info]
+}
+while True:
+    for key, tool_info in tools.items():
+        print("{:<4} {}".format(key, tool_info[0]))
+    choice = input("Toolnummer: ")
+    if not choice.strip():
+        print("Programm beendet.")
+        break
+    if choice.isdigit() and int(choice) in tools:
+        tools[int(choice)][1]()
+    else:
+        print("Ungültige Toolnummer.")
