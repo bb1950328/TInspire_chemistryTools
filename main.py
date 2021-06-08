@@ -322,10 +322,47 @@ def tool_delta_en():
                     print(left_pad(s1, 4), *[left_pad(v, 4) for v in values])
 
 
+def tool_organic_name_decoder():
+    while True:
+        full_name = input("Name einer organischen Verbindung: ").lower()
+        if not full_name.strip():
+            print("Tool beendet.")
+            return
+        else:
+            names = ["meth", "eth", "prop", "but", "pent", "hex", "hept", "oct", "non", "dec"]
+            seitenketten = []
+            yl_splits = full_name.split("yl")
+            stamm = yl_splits[-1]
+            stammlaenge = 0
+            for i, n in enumerate(names):
+                if n in stamm:
+                    stammlaenge = i + 1
+                    break
+            for sk_string in yl_splits[:-1]:
+                if sk_string[0] == "-":
+                    sk_string = sk_string[1:]
+                indices_str, name_str = sk_string.split("-")
+                indices = indices_str.split(",")
+                length = 0
+                for i, n in enumerate(names):
+                    if n in name_str:
+                        length = i + 1
+                        break
+                for i in indices:
+                    seitenketten.append([i, length])
+            c_count = stammlaenge
+            print("Stammlänge:", stammlaenge)
+            for pos, length in seitenketten:
+                print("Seitenkette pos=" + str(pos) + ", len=" + str(length))
+                c_count += length
+            print("Summenformel: C" + format_subscript(c_count) + "H" + format_subscript(2 * c_count + 2))
+
+
 tools = {
     1: ["Element-Info", tool_element_info],
     2: ["Bohrsches Atommodell", tool_bohrsches_atommodell],
-    3: ["Delta-EN", tool_delta_en]
+    3: ["Delta-EN", tool_delta_en],
+    4: ["Organischer Namens-Decoder", tool_organic_name_decoder],
 }
 while True:
     for key, tool_info in tools.items():

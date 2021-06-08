@@ -27,7 +27,7 @@ Symbol oder Name eingeben: 58fe
 ⁵⁸Fe könnte ein Eisen-Isotop mit 26 Protonen und 32 Neutronen sein.
 ```
 
-## 2
+## 2 Bohrsches Atommodell
 ```
 Elementsymbol eingeben: cl
 Elektronenvereilung von Chlor
@@ -46,4 +46,15 @@ H    0.0  1.12 1.17 1.1
 Li   1.12 0.0  0.05 0.02
 Na   1.17 0.05 0.0  0.07
 Ca   1.1  0.02 0.07 0   
+```
+
+## 4 Organischer Namens-Decoder
+```
+Name einer organischen Verbindung: 5-Ethyl-2,3-dimethyl-4-propylheptan
+Stammlänge: 7
+Seitenkette pos=5, len=2
+Seitenkette pos=2, len=1
+Seitenkette pos=3, len=1
+Seitenkette pos=4, len=3
+Summenformel: C₁₄H₃₀
 ```
