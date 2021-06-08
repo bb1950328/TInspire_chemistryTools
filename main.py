@@ -194,6 +194,12 @@ def format_subscript(num):
     return "".join([SUBSCRIPT[int(digit)] for digit in str(num)])
 
 
+def to_title_case(s):
+    if not s.strip():
+        return s
+    return " ".join([word[0].upper() + word[1:] for word in s.split(" ")])
+
+
 def tool_element_info():
     while True:
         inp = input("Symbol oder Name eingeben: ")
@@ -207,10 +213,10 @@ def tool_element_info():
                 if c.isdigit():
                     num = 10 * num + int(c)
                 else:
-                    rest = inp[i:]
+                    rest = to_title_case(inp[i:])
                     break
-            if rest.title() in ELEMENTS_BY_SYMBOL:
-                el = ELEMENTS_BY_SYMBOL[rest.title()]
+            if rest in ELEMENTS_BY_SYMBOL:
+                el = ELEMENTS_BY_SYMBOL[rest]
                 if num == el.protonen:
                     print(format_subscript(el.protonen) + el.symbol, "hat", num, "Protonen und durchschnittlich", el.data[RELATIVE_ATOMMASSE] - el.protonen, "Neutronen")
                 else:
@@ -229,8 +235,6 @@ class ElektronenVerteilung:
         self.chars = [chr(ord('K') + i) for i in range(7)]
 
     def fill_for(self, e):
-        if e > 1:
-            self.fill_for(e - 1)
         if e <= 2:
             self.fill[0] += 1
         elif e <= 10:
@@ -248,6 +252,10 @@ class ElektronenVerteilung:
         else:
             self.fill_innerst()
 
+    def fill_for_all(self, electrons):
+        for e in range(1, electrons + 1):
+            self.fill_for(e)
+
     def fill_innerst(self):
         for i in range(7):
             if self.fill[i] < self.capacity[i]:
@@ -263,7 +271,7 @@ class ElektronenVerteilung:
 
 def tool_bohrsches_atommodell():
     while True:
-        inp = input("Elementsymbol eingeben: ").title()
+        inp = to_title_case(input("Elementsymbol eingeben: "))
         if not inp.strip():
             print("Tool beendet.")
             return
@@ -271,7 +279,7 @@ def tool_bohrsches_atommodell():
             el = ELEMENTS_BY_SYMBOL[inp]
             print("Elektronenvereilung von", el.name)
             verteilung = ElektronenVerteilung()
-            verteilung.fill_for(el.protonen)
+            verteilung.fill_for_all(el.protonen)
             verteilung.print()
 
         else:
