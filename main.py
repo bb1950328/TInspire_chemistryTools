@@ -422,6 +422,30 @@ def gauss_elimination(mat):
     return x
 
 
+def format_roman_number(num):
+    # https://www.w3resource.com/python-exercises/class-exercises/python-class-exercise-1.php
+    val = [
+        1000, 900, 500, 400,
+        100, 90, 50, 40,
+        10, 9, 5, 4,
+        1
+    ]
+    syb = [
+        "M", "CM", "D", "CD",
+        "C", "XC", "L", "XL",
+        "X", "IX", "V", "IV",
+        "I"
+    ]
+    res = ''
+    i = 0
+    while num > 0:
+        for _ in range(num // val[i]):
+            res += syb[i]
+            num -= val[i]
+        i += 1
+    return res
+
+
 def tool_element_info():
     while True:
         inp = input("Symbol oder Name eingeben: ")
@@ -630,9 +654,10 @@ class ElementarMolekul:
     def __init__(self, num=1, el=None):
         self.num = num
         self.element = el
+        self.ionenladung = None
 
     def __str__(self):
-        return self.element.symbol + (format_subscript(self.num) if self.num > 1 else "")
+        return self.element.symbol + (format_subscript(self.num) if self.num > 1 else "") + (format_superscript(self.ionenladung, True, True) if self.ionenladung is not None else "")
 
     @staticmethod
     def parse(inp):
@@ -894,8 +919,7 @@ def tool_ionenverbindung():
         if len(available_ladungen) == 0:
             print(kation.element.name, "eignet sich nicht als Kation.")
         elif len(available_ladungen) == 1:
-            kation_ionenladung = available_ladungen[0]
-            kation_multiple_available = False
+            kation.ionenladung = available_ladungen[0]
             break
         else:
             print(kation.element.name, "mehrere Optionen: ", end="")
@@ -906,11 +930,10 @@ def tool_ionenverbindung():
             if choice.isdigit():
                 for k in available_ladungen:
                     if abs(int(choice)) == abs(k):
-                        kation_ionenladung = k
+                        kation.ionenladung = k
                         break
             else:
-                kation_ionenladung = available_ladungen[0]
-            kation_multiple_available = True
+                kation.ionenladung = available_ladungen[0]
             break
     while True:
         anion = ElementarMolekul.parse(input("Symbol Nichtmetall/Anion: "))
@@ -918,8 +941,7 @@ def tool_ionenverbindung():
         if len(available_ladungen) == 0:
             print(anion.element.name, "eignet sich nicht als Anion.")
         elif len(available_ladungen) == 1:
-            anion_ionenladung = available_ladungen[0]
-            anion_multiple_available = False
+            anion.ionenladung = available_ladungen[0]
             break
         else:
             print(anion.element.name, "mehrere Optionen: ", end="")
@@ -930,15 +952,14 @@ def tool_ionenverbindung():
             if choice.isdigit():
                 for k in available_ladungen:
                     if abs(int(choice)) == abs(k):
-                        anion_ionenladung = k
+                        anion.ionenladung = k
                         break
             else:
-                anion_ionenladung = available_ladungen[0]
-            anion_multiple_available = False
+                anion.ionenladung = available_ladungen[0]
             break
 
-    kation_frei_elektron_count = kation_ionenladung * kation.num
-    anion_frei_elektron_count = anion_ionenladung * anion.num
+    kation_frei_elektron_count = kation.ionenladung * kation.num
+    anion_frei_elektron_count = anion.ionenladung * anion.num
     ion_count = kgv([kation_frei_elektron_count, -anion_frei_elektron_count])
     print(kation.element.symbol, format_superscript(kation_frei_elektron_count, show_plus_sign=True, show_sign_at_the_end=True), sep="", end=" + ")
     print(anion.element.symbol, format_superscript(anion_frei_elektron_count, show_plus_sign=True, show_sign_at_the_end=True), sep="", end="")
@@ -964,19 +985,32 @@ def tool_ionenverbindung():
 
 
 def print_binaer_molekul_name(verbindung):
-    if verbindung.elementar_molekuls[0].num > 1:
-        print(GREEK_NUMBERS[verbindung.elementar_molekuls[0].num - 1], end="")
-    print(verbindung.elementar_molekuls[0].element.name.lower(), end="")
-    if verbindung.elementar_molekuls[1].num > 1:
-        print(GREEK_NUMBERS[verbindung.elementar_molekuls[1].num - 1], end="")
-    if verbindung.elementar_molekuls[1].element.symbol == "O":
+    em0 = verbindung.elementar_molekuls[0]
+    em1 = verbindung.elementar_molekuls[1]
+
+    if em0.num > 1:
+        print(GREEK_NUMBERS[em0.num - 1], end="")
+    print(em0.element.name.lower(), end="")
+    if len(em0.element.data[IONENLADUNGEN]) > 1:
+        il = em0.ionenladung if em0.ionenladung is not None else em0.element.data[IONENLADUNGEN][0]
+        print("(", format_roman_number(il), ")-", end="", sep="")
+    if em1.num > 1:
+        print(GREEK_NUMBERS[em1.num - 1], end="")
+    if em1.element.symbol == "O":
         print("oxid")
-    elif verbindung.elementar_molekuls[1].element.symbol == "S":
+    elif em1.element.symbol == "S":
         print("sulfid")
-    elif verbindung.elementar_molekuls[1].element.symbol == "H":
+    elif em1.element.symbol == "H":
         print("hydrid")
+    elif em1.element.symbol == "P":
+        print("phosphid")
+    elif em1.element.symbol == "N":
+        print("nitrid")
     else:
-        print(verbindung.elementar_molekuls[1].element.name.lower() + "id")
+        print(em1.element.name.lower() + "id")
+        if len(em1.element.data[IONENLADUNGEN]) > 1:
+            il = em1.ionenladung if em1.ionenladung is not None else em1.element.data[IONENLADUNGEN][0]
+            print("(", format_roman_number(il), ")-", end="", sep="")
 
 
 def tool_binar_molekul_name():
@@ -989,6 +1023,7 @@ def tool_binar_molekul_name():
         mo.reorder_binary_if_needed()
         print(mo, " ist ", end="")
         print_binaer_molekul_name(mo)
+
 
 tools = [
     [1, "Element-Info", tool_element_info],
