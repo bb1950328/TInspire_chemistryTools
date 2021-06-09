@@ -73,3 +73,9 @@ Summenformel: C₈H₁₈
 2,2,4-trimethylpentan
 ```
 
+## 6 Reaktionsgleichung ausgleichen
+```
+Bitte Reaktionsgleichung eingeben: CH4 + O2 -> CO2 + H2O
+CH₄ + O₂ -> CO₂ + H₂O
+CH₄ + 2O₂ -> CO₂ + 2H₂O
+```

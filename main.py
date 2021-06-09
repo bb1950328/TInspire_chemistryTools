@@ -1,3 +1,5 @@
+import math
+
 ORGANIC_NAMES = ["meth", "eth", "prop", "but", "pent", "hex", "hept", "oct", "non", "dec"]
 GREEK_NUMBERS = ["mono", "di", "tri", "tetra", "penta", "hexa", "hepta", "octa", "nona", "deca", "undeca", "dodeca", "trideca"]
 RELATIVE_ATOMMASSE = "Relative Atommasse"
@@ -211,6 +213,144 @@ def mp_round(value, digits):
     return str(int(value * ten_mult) / ten_mult)
 
 
+def kgv(nums):
+    if len(nums) == 2:
+        return abs(nums[0] * nums[1]) // ggt(nums)
+    val = kgv(nums[:2])
+    for i in range(2, len(nums)):
+        val = kgv([val, nums[i]])
+    return val
+
+
+def ggt(nums):
+    if len(nums) == 2:
+        x, y = nums
+        while y != 0:
+            (x, y) = (y, x % y)
+        return x
+    val = ggt(nums[:2])
+    for i in range(2, len(nums)):
+        val = ggt([val, nums[i]])
+    return val
+
+
+def zeros_matrix(rows, cols):
+    A = []
+    for _ in range(rows):
+        A.append([])
+        for _ in range(cols):
+            A[-1].append(0.0)
+
+    return A
+
+
+def copy_matrix(original):
+    rows = len(original)
+    cols = len(original[0])
+
+    copied = zeros_matrix(rows, cols)
+
+    for i in range(rows):
+        for j in range(cols):
+            copied[i][j] = original[i][j]
+
+    return copied
+
+
+def matrix_multiply(mat_a, mat_b):
+    rows_a = len(mat_a)
+    cols_a = len(mat_a[0])
+
+    rows_b = len(mat_b)
+    cols_b = len(mat_b[0])
+
+    if cols_a != rows_b:
+        print('WARNING: Number of A columns must equal number of B rows.')
+
+    result = zeros_matrix(rows_a, cols_b)
+
+    for i in range(rows_a):
+        for j in range(cols_b):
+            total = 0
+            for ii in range(cols_a):
+                total += mat_a[i][ii] * mat_b[ii][j]
+            result[i][j] = total
+
+    return result
+
+
+def solve_linear_equation_system(mat_a, mat_b):
+    a_modified = copy_matrix(mat_a)
+    b_modified = copy_matrix(mat_b)
+    n = len(a_modified)
+
+    fd = 1  # fd stands for focus diagonal OR the current diagonal
+    fd_scaler = 1. / a_modified[fd][fd]
+
+    for j in range(n):  # using j to indicate cycling thru columns
+        a_modified[fd][j] = fd_scaler * a_modified[fd][j]
+    b_modified[fd][0] = fd_scaler * b_modified[fd][0]
+
+    n = len(mat_a)
+    indices = list(range(n))
+
+    for i in indices[0:fd] + indices[fd + 1:]:  # *** skip row with fd in it.
+        cr_scaler = a_modified[i][fd]  # cr stands for "current row".
+        for j in range(n):  # cr - cr_scaler * fdRow, but one element at a time.
+            a_modified[i][j] = a_modified[i][j] - cr_scaler * a_modified[fd][j]
+        b_modified[i][0] = b_modified[i][0] - cr_scaler * b_modified[fd][0]
+
+    a_modified = copy_matrix(mat_a)
+    b_modified = copy_matrix(mat_b)
+    n = len(a_modified)
+
+    indices = list(range(n))  # to allow flexible row referencing ***
+    for fd in range(0, n):  # fd stands for focus diagonal
+        fd_scaler = 1.0 / a_modified[fd][fd]
+        # FIRST: scale fd row with fd inverse.
+        for j in range(n):  # Use j to indicate column looping.
+            a_modified[fd][j] *= fd_scaler
+        b_modified[fd][0] *= fd_scaler
+
+        # SECOND: operate on all rows except fd row.
+        for i in indices[:fd] + indices[fd + 1:]:  # *** skip row with fd in it.
+            cr_scaler = a_modified[i][fd]  # cr stands for "current row".
+            for j in range(n):  # cr - cr_scaler * fdRow, but one element at a time.
+                a_modified[i][j] = a_modified[i][j] - cr_scaler * a_modified[fd][j]
+            b_modified[i][0] = b_modified[i][0] - cr_scaler * b_modified[fd][0]
+
+    return b_modified
+
+
+def gauss_elimination(mat):
+    n = len(mat)
+    a = mat
+    x = [0] * n
+    # Applying Gauss Elimination
+    for i in range(n):
+        if a[i][i] == 0.0:
+            raise ValueError('Divide by zero detected!')
+
+        for j in range(i + 1, n):
+            ratio = a[j][i] / a[i][i]
+
+            for k in range(n + 1):
+                a[j][k] = a[j][k] - ratio * a[i][k]
+
+    # Back Substitution
+    x[n - 1] = a[n - 1][n] / a[n - 1][n - 1]
+
+    for i in range(n - 2, -1, -1):
+        x[i] = a[i][n]
+
+        for j in range(i + 1, n):
+            x[i] = x[i] - a[i][j] * x[j]
+
+        x[i] = x[i] / a[i][i]
+
+    return x
+
+
 def tool_element_info():
     while True:
         inp = input("Symbol oder Name eingeben: ")
@@ -299,12 +439,12 @@ def tool_bohrsches_atommodell():
 
 def tool_delta_en():
     while True:
-        inp = to_title_case(input("Mehrere Elementsymbole eingeben (mit Abstand getrennt): "))
-        if not inp.strip():
+        inp = input("Mehrere Elementsymbole getrennt mit Komma: ")
+        if len(inp) == 0:
             print("Tool beendet.")
             return
         else:
-            symbols = list(inp.split(" "))
+            symbols = [to_title_case(e) for e in inp.split(",")]
             if len(symbols) < 2:
                 print("Bitte mehrere Elemente angeben")
             elif len(symbols) == 2:
@@ -400,7 +540,7 @@ def tool_organic_name_encoder():
         else:
             indices_by_length[length].append(idx)
 
-    inverse = stammlaenge - idx_max+1 < idx_min
+    inverse = stammlaenge - idx_max + 1 < idx_min
 
     preassembled = []
     for length, indices in indices_by_length.items():
@@ -412,13 +552,144 @@ def tool_organic_name_encoder():
     print("-".join(["{}-{}{}yl".format(*row) for row in preassembled]) + ORGANIC_NAMES[stammlaenge - 1] + "an")
 
 
+class ElementarMolekul:
+    def __init__(self, num=1, el=None):
+        self.num = num
+        self.element = el
+
+    def __str__(self):
+        return self.element.symbol + (format_subscript(self.num) if self.num > 1 else "")
+
+    @staticmethod
+    def parse(inp):
+        i = 0
+        while i < len(inp) and not inp[i].isdigit():
+            i += 1
+        res = ElementarMolekul()
+        symbol = to_title_case(inp[:i])
+        res.element = ELEMENTS_BY_SYMBOL[symbol]
+        num_str = inp[i:]
+        if num_str:
+            res.num = int(num_str)
+        else:
+            res.num = 1
+        return res
+
+
+class Molekul:
+    def __init__(self, elementar_molekuls=None):
+        if elementar_molekuls is None:
+            elementar_molekuls = []
+        self.elementar_molekuls = elementar_molekuls
+
+    def __str__(self):
+        return "".join([str(em) for em in self.elementar_molekuls])
+
+    @staticmethod
+    def parse(inp):
+        buf = ""
+        res = Molekul()
+        for c in inp:
+            if len(buf) == 0 or (not buf[-1].isdigit() and c.lower() == c):
+                buf += c
+            elif c.isdigit():
+                buf += c
+            else:
+                res.elementar_molekuls.append(ElementarMolekul.parse(buf))
+                buf = c
+        if buf:
+            res.elementar_molekuls.append(ElementarMolekul.parse(buf))
+        return res
+
+
+class Reaction:
+    def __init__(self):
+        self.molekule_before = []
+        self.molekule_after = []
+
+    def __str__(self):
+        return " + ".join(map(str, self.molekule_before)) + " -> " + " + ".join(map(str, self.molekule_after))
+
+    @staticmethod
+    def parse(reaktion):
+        raw_before, raw_after = reaktion.split("->")
+        res = Reaction()
+        res.molekule_before = [Molekul.parse(m.strip()) for m in raw_before.split("+")]
+        res.molekule_after = [Molekul.parse(m.strip()) for m in raw_after.split("+")]
+        return res
+
+
+# _x CH4 + _y O2 -> _z C + _a H2O
+# _x*1 - _z*1 = 0 | C-Atome
+# _x*4 - _a*2 = 0 | H-Atome
+# _y*2 - _a*1 = 0 | O-Atome
+
+
+def tool_ausgleichen():
+    raw_str = input("Bitte Reaktionsgleichung eingeben: ")
+    if not raw_str.strip():
+        return
+    reaktion = Reaction.parse(raw_str)
+    num_verbindungen = len(reaktion.molekule_before) + len(reaktion.molekule_after)
+    a = zeros_matrix(num_verbindungen, num_verbindungen + 1)
+    b = [[0] for _ in range(num_verbindungen)]
+    elements = []
+    for i, mo in enumerate(reaktion.molekule_before + reaktion.molekule_after):
+        sign = -1 if i >= len(reaktion.molekule_before) else 1
+        for el in mo.elementar_molekuls:
+            if el.element.symbol in elements:
+                idx = elements.index(el.element.symbol)
+            else:
+                idx = len(elements)
+                elements.append(el.element.symbol)
+            a[idx][i] = el.num * sign
+    for i in range(len(elements), num_verbindungen):
+        a[i][0] = 1
+        a[i][num_verbindungen] = 1000
+
+    a_rearranged = [None] * num_verbindungen
+    rows_with_nonzero_cols = [[] for _ in range(num_verbindungen)]  # rows_with_nonzero_cols[2] = [3, 4] means that col 2 is nonzero in row 3 and 4
+    for i, row in enumerate(a):
+        for col in range(num_verbindungen):
+            if row[col] != 0:
+                rows_with_nonzero_cols[col].append(i)
+
+    s_nums = sorted([(c, n) for c, n in enumerate(rows_with_nonzero_cols)], key=lambda x: len(x[1]))
+    for col, rows in s_nums:
+        for r in rows:
+            if a[r] is not None:
+                a_rearranged[col] = a[r]
+                a[r] = None
+
+    res = gauss_elimination(a_rearranged)
+    res = [int(r) for r in res]
+    div = ggt(res)
+    res = [int(r / div) for r in res]
+    print(reaktion)
+    for i, mo in enumerate(reaktion.molekule_before + reaktion.molekule_after):
+        if i == len(reaktion.molekule_before):
+            print(" -> ", end="")
+        elif i != 0:
+            print(" + ", end="")
+        print(res[i] if res[i] > 1 else "", mo, sep="", end="")
+    print()
+
+
 tools = {
     1: ["Element-Info", tool_element_info],
     2: ["Bohrsches Atommodell", tool_bohrsches_atommodell],
     3: ["Delta-EN", tool_delta_en],
     4: ["Organischer Namens-Decoder", tool_organic_name_decoder],
     5: ["Organischer Namens-Encoder", tool_organic_name_encoder],
+    6: ["Reaktionsgleichung ausgleichen", tool_ausgleichen],
 }
+
+print(solve_linear_equation_system([
+    [-4., 7., -2.],
+    [1., -2., 1.],
+    [2., -3., 1.]
+], [[2.], [3.], [-4.]]))
+
 while True:
     for key, tool_info in tools.items():
         print("{:<4} {}".format(key, tool_info[0]))
