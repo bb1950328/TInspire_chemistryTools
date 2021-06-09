@@ -149,6 +149,9 @@ class Element:
 
     data = {}
 
+    def get_neutronen_approx(self):
+        return self.data[RELATIVE_ATOMMASSE] - self.protonen
+
 
 ELEMENTS_BY_SYMBOL = {}  #: Dict[str, Element]
 ELEMENTS = []  #: List[Element]
@@ -381,7 +384,7 @@ def tool_element_info():
             if rest in ELEMENTS_BY_SYMBOL:
                 el = ELEMENTS_BY_SYMBOL[rest]
                 if num == el.protonen:
-                    print(format_subscript(el.protonen) + el.symbol, "hat", num, "Protonen und durchschnittlich", el.data[RELATIVE_ATOMMASSE] - el.protonen, "Neutronen")
+                    print(format_subscript(el.protonen) + el.symbol, "hat", num, "Protonen und durchschnittlich", el.get_neutronen_approx(), "Neutronen")
                 else:
                     print(format_superscript(num) + el.symbol, "könnte ein", el.name + "-Isotop mit", el.protonen, "Protonen und", num - el.protonen, "Neutronen sein.")
                 continue
@@ -444,7 +447,7 @@ def tool_bohrsches_atommodell():
             verteilung = ElektronenVerteilung()
             verteilung.fill_for_all(el.protonen)
             verteilung.print()
-
+            print("Kern:", el.protonen, "Protonen und ca.", el.get_neutronen_approx(), "Neutronen")
         else:
             print("Kein Element mit Symbol", inp)
 
@@ -478,17 +481,19 @@ def tool_delta_en():
 
 def print_simple_organic_structure(stammlaenge, seitenketten):
     for i in range(1, stammlaenge + 1):
+        padded_i = left_pad(str(i), 2)
+        padded_spaces = len(padded_i) * " "
         if i != 1:
-            print("|")
+            print(padded_spaces, "|")
         relevant = [sk for sk in seitenketten if sk[0] == i]
         if len(relevant) == 0:
-            print("C")
+            print(padded_i, "C")
         elif len(relevant) == 1:
-            print("C" + "-C" * relevant[0][1])
+            print(padded_i, "C" + "-C" * relevant[0][1])
         else:
-            print("| ╱" + "-C" * relevant[0][1])
-            print("C")
-            print("| ╲" + "-C" * relevant[1][1])
+            print(padded_spaces, "| ╱" + "-C" * relevant[0][1])
+            print(padded_i, "C")
+            print(padded_spaces, "| ╲" + "-C" * relevant[1][1])
 
 
 def tool_organic_name_decoder():
@@ -521,6 +526,7 @@ def tool_organic_name_decoder():
             c_count = stammlaenge
             print_simple_organic_structure(stammlaenge, seitenketten)
             print("Summenformel: C" + format_subscript(c_count) + "H" + format_subscript(2 * c_count + 2))
+            # TODO print info about endigs -en -an and so on
 
 
 def tool_organic_name_encoder():
