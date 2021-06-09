@@ -671,7 +671,7 @@ class BalancedReaction:
 
         balanced = BalancedReaction()
         balanced.molekule_before = [[res[i], ub] for i, ub in enumerate(unbalanced.molekule_before)]
-        balanced.molekule_after = [[res[i+len(unbalanced.molekule_before)], ub] for i, ub in enumerate(unbalanced.molekule_after)]
+        balanced.molekule_after = [[res[i + len(unbalanced.molekule_before)], ub] for i, ub in enumerate(unbalanced.molekule_after)]
         return balanced
 
     @staticmethod
@@ -711,29 +711,43 @@ def tool_ausgleichen():
     print(balanced)
 
 
-tools = {
-    1: ["Element-Info", tool_element_info],
-    2: ["Bohrsches Atommodell", tool_bohrsches_atommodell],
-    3: ["Delta-EN", tool_delta_en],
-    4: ["Organischer Namens-Decoder", tool_organic_name_decoder],
-    5: ["Organischer Namens-Encoder", tool_organic_name_encoder],
-    6: ["Reaktionsgleichung ausgleichen", tool_ausgleichen],
-}
+def tool_vollstaendig_verbrennung():
+    while True:
+        inp = input("Molekül zum Verbrennen: ")
+        if not inp.strip():
+            print("Tool beendet.")
+            return
+        mo = Molekul.parse(inp)
+        ub = Reaction()
+        ub.molekule_before = [mo, Molekul.parse("O2")]
+        ub.molekule_after = [Molekul.parse("CO2"), Molekul.parse("H2O")]
+        br = BalancedReaction.balance(ub)
+        print(ub)
+        print(br)
 
-print(solve_linear_equation_system([
-    [-4., 7., -2.],
-    [1., -2., 1.],
-    [2., -3., 1.]
-], [[2.], [3.], [-4.]]))
+
+tools = [
+    [1, "Element-Info", tool_element_info],
+    [2, "Bohrsches Atommodell", tool_bohrsches_atommodell],
+    [3, "Delta-EN", tool_delta_en],
+    [4, "Organischer Namens-Decoder", tool_organic_name_decoder],
+    [5, "Organischer Namens-Encoder", tool_organic_name_encoder],
+    [6, "Reaktionsgleichung ausgleichen", tool_ausgleichen],
+    [7, "Vollständige Verbrennung", tool_vollstaendig_verbrennung]
+]
 
 while True:
-    for key, tool_info in tools.items():
-        print("{:<4} {}".format(key, tool_info[0]))
+    for num, name, func in tools:
+        print("{:<4} {}".format(num, name))
     choice = input("Toolnummer: ")
     if not choice.strip():
         print("Programm beendet.")
         break
-    if choice.isdigit() and int(choice) in tools:
-        tools[int(choice)][1]()
+    if choice.isdigit():
+        filtered = [t for t in tools if t[0] == int(choice)]
+        if filtered:
+            filtered[0][2]()
+        else:
+            print("Ungültige Toolnummer.")
     else:
         print("Ungültige Toolnummer.")
