@@ -629,6 +629,72 @@ class Reaction:
         return res
 
 
+class BalancedReaction:
+    def __init__(self):
+        self.molekule_before = []
+        self.molekule_after = []
+
+    @staticmethod
+    def _format_molecule_and_coeff(coeff, molecule):
+        return ("" if coeff == 1 else str(coeff)) + str(molecule)
+
+    def __str__(self):
+        fmt_before = [self._format_molecule_and_coeff(c, m) for c, m in self.molekule_before]
+        fmt_after = [self._format_molecule_and_coeff(c, m) for c, m in self.molekule_after]
+        return " + ".join(fmt_before) + " -> " + " + ".join(fmt_after)
+
+    @staticmethod
+    def balance(unbalanced):
+        num_verbindungen = len(unbalanced.molekule_before) + len(unbalanced.molekule_after)
+        a = zeros_matrix(num_verbindungen, num_verbindungen + 1)
+        elements = []
+        for i, mo in enumerate(unbalanced.molekule_before + unbalanced.molekule_after):
+            sign = -1 if i >= len(unbalanced.molekule_before) else 1
+            for el in mo.elementar_molekuls:
+                if el.element.symbol in elements:
+                    idx = elements.index(el.element.symbol)
+                else:
+                    idx = len(elements)
+                    elements.append(el.element.symbol)
+                a[idx][i] += el.num * sign
+        for i in range(len(elements), num_verbindungen):
+            a[i][0] = 1
+            a[i][num_verbindungen] = 1000
+
+        a_rearranged = BalancedReaction._sort_equations(a, num_verbindungen)
+
+        res = gauss_elimination(a_rearranged)
+        res = simplify_numbers(res)
+        res = [int(r) for r in res]
+        div = ggt(res)
+        res = [int(r / div) for r in res]
+
+        balanced = BalancedReaction()
+        balanced.molekule_before = [[res[i], ub] for i, ub in enumerate(unbalanced.molekule_before)]
+        balanced.molekule_after = [[res[i+len(unbalanced.molekule_before)], ub] for i, ub in enumerate(unbalanced.molekule_after)]
+        return balanced
+
+    @staticmethod
+    def _sort_equations(a, num_verbindungen):
+        a_rearranged = [None] * num_verbindungen
+        rows_with_nonzero_cols = [[] for _ in range(num_verbindungen)]  # rows_with_nonzero_cols[2] = [3, 4] means that col 2 is nonzero in row 3 and 4
+        for i, row in enumerate(a):
+            for col in range(num_verbindungen):
+                if row[col] != 0:
+                    rows_with_nonzero_cols[col].append(i)
+        s_nums = sorted([(c, n) for c, n in enumerate(rows_with_nonzero_cols)], key=lambda x: len(x[1]))
+        while len(s_nums):
+            col, rows = s_nums.pop(0)
+            r = rows[0]
+            a_rearranged[col] = a[r]
+            a[r] = None
+            for j in range(len(s_nums)):
+                if r in s_nums[j][1]:
+                    s_nums[j][1].remove(r)
+            s_nums.sort(key=lambda x: len(x[1]))
+        return a_rearranged
+
+
 # _x CH4 + _y O2 -> _z C + _a H2O
 # _x*1 - _z*1 = 0 | C-Atome
 # _x*4 - _a*2 = 0 | H-Atome
@@ -641,52 +707,8 @@ def tool_ausgleichen():
         return
     reaktion = Reaction.parse(raw_str)
     print(reaktion)
-    num_verbindungen = len(reaktion.molekule_before) + len(reaktion.molekule_after)
-    a = zeros_matrix(num_verbindungen, num_verbindungen + 1)
-    elements = []
-    for i, mo in enumerate(reaktion.molekule_before + reaktion.molekule_after):
-        sign = -1 if i >= len(reaktion.molekule_before) else 1
-        for el in mo.elementar_molekuls:
-            if el.element.symbol in elements:
-                idx = elements.index(el.element.symbol)
-            else:
-                idx = len(elements)
-                elements.append(el.element.symbol)
-            a[idx][i] += el.num * sign
-    for i in range(len(elements), num_verbindungen):
-        a[i][0] = 1
-        a[i][num_verbindungen] = 1000
-
-    a_rearranged = [None] * num_verbindungen
-    rows_with_nonzero_cols = [[] for _ in range(num_verbindungen)]  # rows_with_nonzero_cols[2] = [3, 4] means that col 2 is nonzero in row 3 and 4
-    for i, row in enumerate(a):
-        for col in range(num_verbindungen):
-            if row[col] != 0:
-                rows_with_nonzero_cols[col].append(i)
-
-    s_nums = sorted([(c, n) for c, n in enumerate(rows_with_nonzero_cols)], key=lambda x: len(x[1]))
-    while len(s_nums):
-        col, rows = s_nums.pop(0)
-        r = rows[0]
-        a_rearranged[col] = a[r]
-        a[r] = None
-        for j in range(len(s_nums)):
-            if r in s_nums[j][1]:
-                s_nums[j][1].remove(r)
-        s_nums.sort(key=lambda x: len(x[1]))
-
-    res = gauss_elimination(a_rearranged)
-    res = simplify_numbers(res)
-    res = [int(r) for r in res]
-    div = ggt(res)
-    res = [int(r / div) for r in res]
-    for i, mo in enumerate(reaktion.molekule_before + reaktion.molekule_after):
-        if i == len(reaktion.molekule_before):
-            print(" -> ", end="")
-        elif i != 0:
-            print(" + ", end="")
-        print(res[i] if res[i] > 1 else "", mo, sep="", end="")
-    print()
+    balanced = BalancedReaction.balance(reaktion)
+    print(balanced)
 
 
 tools = {
