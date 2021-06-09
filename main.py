@@ -1,3 +1,5 @@
+ORGANIC_NAMES = ["meth", "eth", "prop", "but", "pent", "hex", "hept", "oct", "non", "dec"]
+GREEK_NUMBERS = ["mono", "di", "tri", "tetra", "penta", "hexa", "hepta", "octa", "nona", "deca", "undeca", "dodeca", "trideca"]
 RELATIVE_ATOMMASSE = "Relative Atommasse"
 PERIODE = "Periode"
 GRUPPE = "Gruppe"
@@ -322,6 +324,21 @@ def tool_delta_en():
                     print(left_pad(s1, 4), *[left_pad(v, 4) for v in values])
 
 
+def print_simple_organic_structure(stammlaenge, seitenketten):
+    for i in range(1, stammlaenge + 1):
+        if i != 1:
+            print("|")
+        relevant = [sk for sk in seitenketten if sk[0] == i]
+        if len(relevant) == 0:
+            print("C")
+        elif len(relevant) == 1:
+            print("C" + "-C" * relevant[0][1])
+        else:
+            print("| ╱" + "-C" * relevant[0][1])
+            print("C")
+            print("| ╲" + "-C" * relevant[1][1])
+
+
 def tool_organic_name_decoder():
     while True:
         full_name = input("Name einer organischen Verbindung: ").lower()
@@ -329,12 +346,11 @@ def tool_organic_name_decoder():
             print("Tool beendet.")
             return
         else:
-            names = ["meth", "eth", "prop", "but", "pent", "hex", "hept", "oct", "non", "dec"]
             seitenketten = []
             yl_splits = full_name.split("yl")
             stamm = yl_splits[-1]
             stammlaenge = 0
-            for i, n in enumerate(names):
+            for i, n in enumerate(ORGANIC_NAMES):
                 if n in stamm:
                     stammlaenge = i + 1
                     break
@@ -342,20 +358,58 @@ def tool_organic_name_decoder():
                 if sk_string[0] == "-":
                     sk_string = sk_string[1:]
                 indices_str, name_str = sk_string.split("-")
-                indices = indices_str.split(",")
+                indices = list(map(int, indices_str.split(",")))
                 length = 0
-                for i, n in enumerate(names):
+                for i, n in enumerate(ORGANIC_NAMES):
                     if n in name_str:
                         length = i + 1
                         break
                 for i in indices:
                     seitenketten.append([i, length])
             c_count = stammlaenge
-            print("Stammlänge:", stammlaenge)
-            for pos, length in seitenketten:
-                print("Seitenkette pos=" + str(pos) + ", len=" + str(length))
-                c_count += length
+            print_simple_organic_structure(stammlaenge, seitenketten)
             print("Summenformel: C" + format_subscript(c_count) + "H" + format_subscript(2 * c_count + 2))
+
+
+def tool_organic_name_encoder():
+    stammlaenge = int(input("Stammlänge: "))
+    c_count = stammlaenge
+    seitenketten = []
+    while True:
+        index = input("Index Seitenkette (leer lassen zum Beenden): ")
+        if not index.strip():
+            break
+        else:
+            index = int(index)
+            length = int(input("Länge der Seitenkette: "))
+            seitenketten.append([index, length])
+            c_count += length
+
+    print("Summenformel: C" + format_subscript(c_count) + "H" + format_subscript(2 * c_count + 2))
+    indices_by_length = {}
+    idx_min = None
+    idx_max = None
+    for idx, length in seitenketten:
+        if idx_min is None:
+            idx_min = idx_max = idx
+        else:
+            idx_min = min(idx_min, idx)
+            idx_max = max(idx_max, idx)
+        if length not in indices_by_length:
+            indices_by_length[length] = [idx]
+        else:
+            indices_by_length[length].append(idx)
+
+    inverse = stammlaenge - idx_max+1 < idx_min
+
+    preassembled = []
+    for length, indices in indices_by_length.items():
+        idx_string = ",".join(map(str, sorted([stammlaenge - i + 1 for i in indices] if inverse else indices)))
+        index_count_name = GREEK_NUMBERS[len(indices) - 1] if len(indices) > 1 else ""
+        length_name = ORGANIC_NAMES[length - 1]
+        preassembled.append([idx_string, index_count_name, length_name])
+    preassembled.sort(key=lambda row: row[1])
+    print("-".join(["{}-{}{}yl".format(*row) for row in preassembled]) + ORGANIC_NAMES[stammlaenge - 1] + "an")
 
 
 tools = {
@@ -363,6 +417,7 @@ tools = {
     2: ["Bohrsches Atommodell", tool_bohrsches_atommodell],
     3: ["Delta-EN", tool_delta_en],
     4: ["Organischer Namens-Decoder", tool_organic_name_decoder],
+    5: ["Organischer Namens-Encoder", tool_organic_name_encoder],
 }
 while True:
     for key, tool_info in tools.items():

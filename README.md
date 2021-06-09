@@ -58,3 +58,18 @@ Seitenkette pos=3, len=1
 Seitenkette pos=4, len=3
 Summenformel: C₁₄H₃₀
 ```
+
+## 5 Organischer Namens-Encoder
+```
+Stammlänge: 5
+Index Seitenkette (leer lassen zum Beenden): 2
+Länge der Seitenkette: 1
+Index Seitenkette (leer lassen zum Beenden): 2
+Länge der Seitenkette: 1
+Index Seitenkette (leer lassen zum Beenden): 4
+Länge der Seitenkette: 1
+Index Seitenkette (leer lassen zum Beenden): 
+Summenformel: C₈H₁₈
+2,2,4-trimethylpentan
+```
+
