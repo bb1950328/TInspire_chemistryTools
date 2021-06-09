@@ -78,4 +78,10 @@ Summenformel: C₈H₁₈
 Bitte Reaktionsgleichung eingeben: CH4 + O2 -> CO2 + H2O
 CH₄ + O₂ -> CO₂ + H₂O
 CH₄ + 2O₂ -> CO₂ + 2H₂O
+Bitte Reaktionsgleichung eingeben: CH3CH2OH + O2 -> CO2 + H2O
+CH₃CH₂OH + O₂ -> CO₂ + H₂O
+CH₃CH₂OH + 3O₂ -> 2CO₂ + 3H₂O
+Bitte Reaktionsgleichung eingeben: Zn + AuCl3 -> ZnCl2 + Au
+Zn + AuCl₃ -> ZnCl₂ + Au
+3Zn + 2AuCl₃ -> 3ZnCl₂ + 2Au
 ```

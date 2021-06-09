@@ -234,6 +234,16 @@ def ggt(nums):
     return val
 
 
+def simplify_numbers(nums):
+    options = []
+    for i in range(len(nums)):
+        factor = 1000 / nums[i]
+        o = [int(n / factor) for n in nums]
+        gg = ggt(o)
+        options.append([int(n / gg) for n in o])
+    return get_best(lambda opt: -sum(opt), options)
+
+
 def zeros_matrix(rows, cols):
     A = []
     for _ in range(rows):
@@ -630,9 +640,9 @@ def tool_ausgleichen():
     if not raw_str.strip():
         return
     reaktion = Reaction.parse(raw_str)
+    print(reaktion)
     num_verbindungen = len(reaktion.molekule_before) + len(reaktion.molekule_after)
     a = zeros_matrix(num_verbindungen, num_verbindungen + 1)
-    b = [[0] for _ in range(num_verbindungen)]
     elements = []
     for i, mo in enumerate(reaktion.molekule_before + reaktion.molekule_after):
         sign = -1 if i >= len(reaktion.molekule_before) else 1
@@ -642,7 +652,7 @@ def tool_ausgleichen():
             else:
                 idx = len(elements)
                 elements.append(el.element.symbol)
-            a[idx][i] = el.num * sign
+            a[idx][i] += el.num * sign
     for i in range(len(elements), num_verbindungen):
         a[i][0] = 1
         a[i][num_verbindungen] = 1000
@@ -655,17 +665,21 @@ def tool_ausgleichen():
                 rows_with_nonzero_cols[col].append(i)
 
     s_nums = sorted([(c, n) for c, n in enumerate(rows_with_nonzero_cols)], key=lambda x: len(x[1]))
-    for col, rows in s_nums:
-        for r in rows:
-            if a[r] is not None:
-                a_rearranged[col] = a[r]
-                a[r] = None
+    while len(s_nums):
+        col, rows = s_nums.pop(0)
+        r = rows[0]
+        a_rearranged[col] = a[r]
+        a[r] = None
+        for j in range(len(s_nums)):
+            if r in s_nums[j][1]:
+                s_nums[j][1].remove(r)
+        s_nums.sort(key=lambda x: len(x[1]))
 
     res = gauss_elimination(a_rearranged)
+    res = simplify_numbers(res)
     res = [int(r) for r in res]
     div = ggt(res)
     res = [int(r / div) for r in res]
-    print(reaktion)
     for i, mo in enumerate(reaktion.molekule_before + reaktion.molekule_after):
         if i == len(reaktion.molekule_before):
             print(" -> ", end="")
