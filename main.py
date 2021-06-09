@@ -139,6 +139,8 @@ PERIODIC_TABLE_DATA = [
 SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹"
 SUBSCRIPT = "₀₁₂₃₄₅₆₇₈₉"
 
+AVOGADRO_KONSTANTE = 6.02214076e+23
+
 
 class Element:
     protonen = 0
@@ -611,6 +613,9 @@ class Molekul:
             res.elementar_molekuls.append(ElementarMolekul.parse(buf))
         return res
 
+    def get_molar_mass(self):
+        return sum(em.element.data[RELATIVE_ATOMMASSE] * em.num for em in self.elementar_molekuls)
+
 
 class Reaction:
     def __init__(self):
@@ -726,6 +731,83 @@ def tool_vollstaendig_verbrennung():
         print(br)
 
 
+class StochiometrieData:
+    def __init__(self):
+        self.n = None
+        self.m = None
+        self.M = None
+        self.N = None
+
+    def __str__(self):
+        vals = {
+            "n": "?" if self.n is None else (str(self.n) + "mol"),
+            "m": "?" if self.m is None else (str(self.m) + "g"),
+            "M": "?" if self.M is None else (str(self.M) + "g/mol"),
+            "N": "?" if self.N is None else str(self.N)
+        }
+        return ", ".join(k + "=" + v for k, v in vals.items())
+
+    def copy(self):
+        c = StochiometrieData()
+        c.n = self.n
+        c.m = self.m
+        c.M = self.M
+        c.N = self.N
+        return c
+
+    def solve_rest(self):
+        while self._solve_rest_internal():
+            pass
+
+    def _solve_rest_internal(self):
+        if self.n is not None and self.N is None:
+            self.N = AVOGADRO_KONSTANTE * self.n
+            return True
+        if self.n is None and self.N is not None:
+            self.n = self.N / AVOGADRO_KONSTANTE
+            return True
+        if self.n is None and self.m is not None and self.M is not None:
+            self.n = self.m / self.M
+            return True
+        if self.m is None and self.n is not None and self.M is not None:
+            self.m = self.n * self.M
+            return True
+        if self.M is None and self.n is not None and self.m is not None:
+            self.M = self.m / self.n
+            return True
+        return False
+
+
+def tool_stochiometrie():
+    print("Bekannte Informationen eingeben. z.B. 'n=6' für Stoffmenge 6 Mol")
+    entered = StochiometrieData()
+    while True:
+        calced = entered.copy()
+        calced.solve_rest()
+        print("Gegeben:", entered)
+        print("Berechnet:", calced)
+        command = input("> ")
+        if not command.strip():
+            return
+        if command == "=":
+            entered = StochiometrieData()
+        var, val = command.split("=")
+        var = var.strip()
+        if var == "M":
+            entered.M = Molekul.parse(val.strip()).get_molar_mass()
+        else:
+            try:
+                val = float(val)
+            except ValueError:
+                val = None
+            if var == "n":
+                entered.n = val
+            elif var == "m":
+                entered.m = val
+            elif var == "N":
+                entered.N = val
+
+
 tools = [
     [1, "Element-Info", tool_element_info],
     [2, "Bohrsches Atommodell", tool_bohrsches_atommodell],
@@ -733,7 +815,8 @@ tools = [
     [4, "Organischer Namens-Decoder", tool_organic_name_decoder],
     [5, "Organischer Namens-Encoder", tool_organic_name_encoder],
     [6, "Reaktionsgleichung ausgleichen", tool_ausgleichen],
-    [7, "Vollständige Verbrennung", tool_vollstaendig_verbrennung]
+    [7, "Vollständige Verbrennung", tool_vollstaendig_verbrennung],
+    [8, "Stöchiometrie", tool_stochiometrie],
 ]
 
 while True:
