@@ -5,7 +5,14 @@
 
 [TI Nspire™ CX II Python docs](https://education.ti.com/en/products/calculators/graphing-calculators/ti-nspire-cx-ii-cx-ii-cas/programming-in-python)
 
+## Wichtig
+* KEINE GARANTIE AUF KORREKTHEIT
+* Nehmt euch den Code nicht als Vorbild, er ist nicht schön
+* Die meisten Menüs können verlassen werden, indem man nichts eingibt (einfach `enter` drücken)
+* Zum Teil können Sachen gemacht werden, die in Realität gar nicht gehen (z.B. organische Namen und Strukturen werden viel zu wenig validiert)
+
 ## 1 Element-Info
+Elementsymbol oder Name eingeben. Vom besten Treffer werden Daten angezeigt:
 ```
 Symbol oder Name eingeben: Au
 Protonenzahl: 79
@@ -28,6 +35,7 @@ Symbol oder Name eingeben: 58fe
 ```
 
 ## 2 Bohrsches Atommodell
+Elementsymbol angeben. Es werden Infos angezeigt für das Bohr'sche Atommodell:
 ```
 Elementsymbol eingeben: cl
 Elektronenvereilung von Chlor
@@ -37,6 +45,7 @@ Schale M 7 von 18 Elektronen
 ```
 
 ## 3 Delta-EN
+Es können zwei oder mehr Elementsymbole eingegeben werden. Bei zwei werden die Elektronegativitäten ausgegeben. Bei drei oder mehr wird eine Tabelle mit allen Kombinationen und deren EN-Deltas ausgegeben: 
 ```
 Mehrere Elementsymbole eingeben (mit Abstand getrennt): H Li
 ΔEN = 1.12 (EN von Wasserstoff = 2.1 und EN von Lithium = 0.98
@@ -49,6 +58,7 @@ Ca   1.1  0.02 0.07 0
 ```
 
 ## 4 Organischer Namens-Decoder
+Namen eines organischen Moleküls eingeben:
 ```
 Name einer organischen Verbindung: 5-Ethyl-2,3-dimethyl-4-propylheptan
 Stammlänge: 7
@@ -60,6 +70,7 @@ Summenformel: C₁₄H₃₀
 ```
 
 ## 5 Organischer Namens-Encoder
+Umkehrfunktion von Tool 4. Interaktive Eingabe der Struktur und anschliessende Ausgabe der Summenformel und des Namens:
 ```
 Stammlänge: 5
 Index Seitenkette (leer lassen zum Beenden): 2
@@ -74,6 +85,7 @@ Summenformel: C₈H₁₈
 ```
 
 ## 6 Reaktionsgleichung ausgleichen
+Reaktionsgleichung eingeben (`->` als Reaktionspfeil). Tool berechnet die Koeffizienten automatisch. Redoxreaktionen o.ä. aktuell nicht unterstützt.
 ```
 Bitte Reaktionsgleichung eingeben: CH4 + O2 -> CO2 + H2O
 CH₄ + O₂ -> CO₂ + H₂O

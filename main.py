@@ -791,6 +791,9 @@ def tool_stochiometrie():
             return
         if command == "=":
             entered = StochiometrieData()
+        if command.count("=") != 1:
+            print("Ungültiger Befehl. Keine Aktion.")
+            continue
         var, val = command.split("=")
         var = var.strip()
         if var == "M":
