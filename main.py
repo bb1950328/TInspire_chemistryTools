@@ -1,6 +1,12 @@
 import math
 import re
 
+SYMBOL = "Symbol"
+
+NAME = "Name"
+
+PROTONENZAHL = "Protonenzahl"
+
 ORGANIC_NAMES = ["meth", "eth", "prop", "but", "pent", "hex", "hept", "oct", "non", "dec"]
 GREEK_NUMBERS = ["mono", "di", "tri", "tetra", "penta", "hexa", "hepta", "octa", "nona", "deca", "undeca", "dodeca", "trideca"]
 RELATIVE_ATOMMASSE = "Relative Atommasse"
@@ -17,7 +23,7 @@ ISOTOPE = "Isotope"
 ELEKTRONENKONFIGURATION = "Elektronenkonfiguration"
 VALENZELEKTRONEN = "Valenzelektronen"
 IONENLADUNGEN = "Ionenladungen"
-PERIODIC_TABLE_HEADS = ["Protonenzahl", "Name", "Symbol", RELATIVE_ATOMMASSE, PERIODE, GRUPPE, ZUSTAND, TYP, ATOMRADIUS, ELEKTRONEGATIVITAET, DICHTE, SCHMELZPUNKT_K, SIEDEPUNKT_K, ISOTOPE, ELEKTRONENKONFIGURATION, VALENZELEKTRONEN, IONENLADUNGEN]
+PERIODIC_TABLE_HEADS = [PROTONENZAHL, NAME, SYMBOL, RELATIVE_ATOMMASSE, PERIODE, GRUPPE, ZUSTAND, TYP, ATOMRADIUS, ELEKTRONEGATIVITAET, DICHTE, SCHMELZPUNKT_K, SIEDEPUNKT_K, ISOTOPE, ELEKTRONENKONFIGURATION, VALENZELEKTRONEN, IONENLADUNGEN]
 PERIODIC_TABLE_DATA = [
     [1, 'Wasserstoff', 'H', 1.00794, 1, 1, 'gas', 'Nichtmetall', 0.79, 2.1, 8.988e-05, 14.175, 20.28, 3, '1s1', 1, [+1, -1]],
     [2, 'Helium', 'He', 4.002602, 1, 18, 'gas', 'Edelgas', 0.49, None, 0.0001785, None, 4.22, 5, '1s2', 2, []],
@@ -470,7 +476,7 @@ def tool_element_info():
                 continue
 
         el = get_best(lambda elem: max(-levenshtein_distance(elem.name, inp), -levenshtein_distance(elem.symbol, inp)), ELEMENTS)
-        for h in PERIODIC_TABLE_HEADS:
+        for h in [SYMBOL, NAME, PROTONENZAHL, RELATIVE_ATOMMASSE, ATOMRADIUS, ELEKTRONEGATIVITAET, DICHTE, ISOTOPE, VALENZELEKTRONEN, IONENLADUNGEN]:
             print("{}: {}".format(h, el.data[h]))
 
 
@@ -563,8 +569,6 @@ def print_simple_organic_structure(stammlaenge, seitenketten):
     for i in range(1, stammlaenge + 1):
         padded_i = left_pad(str(i), 2)
         padded_spaces = len(padded_i) * " "
-        if i != 1:
-            print(padded_spaces, "|")
         relevant = [sk for sk in seitenketten if sk[0] == i]
         if len(relevant) == 0:
             print(padded_i, "C")
@@ -603,7 +607,7 @@ def tool_organic_name_decoder():
                         break
                 for i in indices:
                     seitenketten.append([i, length])
-            c_count = stammlaenge
+            c_count = stammlaenge + sum([le for idx, le in seitenketten])
             print_simple_organic_structure(stammlaenge, seitenketten)
             print("Summenformel: C" + format_subscript(c_count) + "H" + format_subscript(2 * c_count + 2))
             # TODO print info about endigs -en -an and so on
@@ -1039,12 +1043,14 @@ tools = [
 ]
 
 while True:
-    for num, name, func in tools:
-        print("{:<4} {}".format(num, name))
-    choice = input("Toolnummer: ")
-    if not choice.strip():
-        print("Programm beendet.")
-        break
+    choice = input("Tool oder Enter für Menu:")
+    if not choice.isdigit():
+        for num, name, func in tools:
+            print("{:<4} {}".format(num, name))
+        choice = input("Toolnummer: ")
+        if not choice.strip():
+            print("Programm beendet.")
+            break
     if choice.isdigit():
         filtered = [t for t in tools if t[0] == int(choice)]
         if filtered:
