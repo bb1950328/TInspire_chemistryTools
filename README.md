@@ -6,7 +6,7 @@
 [TI Nspire™ CX II Python docs](https://education.ti.com/en/products/calculators/graphing-calculators/ti-nspire-cx-ii-cx-ii-cas/programming-in-python)
 
 ## Wichtig
-* KEINE GARANTIE AUF KORREKTHEIT
+* **KEINE GARANTIE AUF KORREKTHEIT**
 * Nehmt euch den Code nicht als Vorbild, er ist nicht schön
 * Die meisten Menüs können verlassen werden, indem man nichts eingibt (einfach `enter` drücken)
 * Zum Teil können Sachen gemacht werden, die in Realität gar nicht gehen (z.B. organische Namen und Strukturen werden viel zu wenig validiert)
@@ -50,6 +50,8 @@ Es können zwei oder mehr Elementsymbole eingegeben werden. Bei zwei werden die 
 ```
 Mehrere Elementsymbole eingeben (mit Abstand getrennt): H Li
 ΔEN = 1.12 (EN von Wasserstoff = 2.1 und EN von Lithium = 0.98
+```
+```
 Mehrere Elementsymbole eingeben (mit Abstand getrennt): H Li Na Ca
      H    Li   Na   Ca  
 H    0.0  1.12 1.17 1.1 
@@ -99,9 +101,13 @@ Reaktionsgleichung eingeben (`->` als Reaktionspfeil). Tool berechnet die Koeffi
 Bitte Reaktionsgleichung eingeben: CH4 + O2 -> CO2 + H2O
 CH₄ + O₂ -> CO₂ + H₂O
 CH₄ + 2O₂ -> CO₂ + 2H₂O
+```
+```
 Bitte Reaktionsgleichung eingeben: CH3CH2OH + O2 -> CO2 + H2O
 CH₃CH₂OH + O₂ -> CO₂ + H₂O
 CH₃CH₂OH + 3O₂ -> 2CO₂ + 3H₂O
+```
+```
 Bitte Reaktionsgleichung eingeben: Zn + AuCl3 -> ZnCl2 + Au
 Zn + AuCl₃ -> ZnCl₂ + Au
 3Zn + 2AuCl₃ -> 3ZnCl₂ + 2Au
