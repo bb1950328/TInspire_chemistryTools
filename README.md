@@ -7,9 +7,17 @@
 
 ## Wichtig
 * **KEINE GARANTIE AUF KORREKTHEIT**
-* Nehmt euch den Code nicht als Vorbild, er ist nicht schön
+* Nehmt euch den Code nicht als Vorbild, er ist nicht besonders schön
 * Die meisten Menüs können verlassen werden, indem man nichts eingibt (einfach `enter` drücken)
 * Zum Teil können Sachen gemacht werden, die in Realität gar nicht gehen (z.B. organische Namen und Strukturen werden viel zu wenig validiert)
+
+## Auf den Rechner laden
+1. TI Nspire CX CAS Student Software starten
+1. Neues Dokument
+1. Neues Python-Skript, "main.py" nennen
+1. Von [hier](https://raw.githubusercontent.com/bb1950328/ChemistryFinals2021/master/main.py) alles kopieren und einfügen
+1. Menu "File" > "Save to Handheld"
+1. Auf dem Rechner öffnen und Ctrl+R drücken zum ausführen
 
 ## 1 Element-Info
 Elementsymbol oder Name eingeben. Vom besten Treffer werden Daten angezeigt:
