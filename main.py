@@ -732,7 +732,10 @@ class Reaction:
 
     @staticmethod
     def parse(reaktion):
-        raw_before, raw_after = reaktion.split("->")
+        if "->" in reaktion:
+            raw_before, raw_after = reaktion.split("->")
+        else:
+            raw_before, raw_after = reaktion.split("-")
         res = Reaction()
         res.molekule_before = [Molekul.parse(m.strip()) for m in raw_before.split("+")]
         res.molekule_after = [Molekul.parse(m.strip()) for m in raw_after.split("+")]
